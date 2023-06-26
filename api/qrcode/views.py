@@ -9,7 +9,7 @@ from ..utils import db
 from urllib.parse import urlparse, urlunparse
 from werkzeug.urls import url_parse, url_encode
 from datetime import datetime
-# from ..config.config import cache, limiter
+from ..config.config import cache, limiter
 from http import HTTPStatus
 import urllib.parse
 import qrcode
@@ -38,7 +38,7 @@ qrcode_model = qrcode_namespace.model(
 
 @qrcode_namespace.route('/generate')
 class QRCodeGenerator(Resource):
-    # @limiter.limit("10 per minute")
+    @limiter.limit("10 per minute")
     @qrcode_namespace.expect(shortlink_model)
     @qrcode_namespace.produces(['image/png'])
     @qrcode_namespace.doc(
@@ -100,7 +100,7 @@ class QRCodeImage(Resource):
             description='Get A QR-Code For A Shortened URL',
             params={'short_url': 'Short URL'}
     )
-    # @cache.cached(timeout=60)
+    @cache.cached(timeout=60)
     @jwt_required()
     def get(self, short_url):
         """

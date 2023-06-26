@@ -11,19 +11,14 @@ from ..utils import db
 from urllib.parse import urlparse, urlunparse
 from datetime import datetime
 from http import HTTPStatus
-# from ..config.config import cache, limiter
+from ..config.config import cache, limiter
 import requests
 import string
 import random
 import validators
 import redis
-#import tldextract
 
-# def normalize_and_canonicalize_url(url):
-#     parsed_url = urlparse(url)
-#     normalized_url = parsed_url._replace(netloc=parsed_url.netloc.replace('www.', ''), path=parsed_url.path.rstrip('/'))
-#     canonical_url = normalized_url._replace(scheme="http", netloc=normalized_url.netloc.lower())
-#     return urlunparse(canonical_url)
+
 
 def generate_short_url(length=6):
     chars = string.ascii_letters + string.digits
@@ -61,7 +56,7 @@ createshorturl_model  = shorturl_namespace.model(
 
 @shorturl_namespace.route('/shorturl')
 class UrlCreate(Resource):
-    # @limiter.limit("10 per minute")
+    @limiter.limit("10 per minute")
     @shorturl_namespace.expect(createshorturl_model)
     @shorturl_namespace.doc(
         description='Shorten A Url'
@@ -77,14 +72,12 @@ class UrlCreate(Resource):
         long_url = data.get('long_url')
         short_url = data.get('short_url')
 
-        # print(data)
-        
-        #normalized_url = normalize_url(long_url)
+       
 
         if not validate_url(long_url):
             return {'message': 'Invalid URL'}, 400
         
-        # canonical_long_url = normalize_and_canonicalize_url(long_url)
+        
     
         base_url = request.host_url
 
@@ -92,15 +85,7 @@ class UrlCreate(Resource):
         if existing_user_shorturl:
             return {'message': 'URL already shortened by you'},400
 
-        # existing_longurl = Shorturl.query.filter_by(long_url=canonical_long_url).first()
-        # if existing_longurl:
-        #     return {'message': 'URL already exists'}, 400 #HTTPStatus.BAD_REQUEST
-
-        # if not is_valid_url(canonical_long_url):
-        #     print(is_valid_url(canonical_long_url))
-        #     print(canonical_long_url)
-        #     return {'message': 'Invalid or non-existent URL'}, 400
-
+     
 
         existing_shorturl = Shorturl.query.filter_by(short_url=short_url).first()
         if existing_shorturl:
@@ -138,7 +123,7 @@ class GetUrlClickCount(Resource):
             description='Get The Number Of Clicks Of Short URL',
             params = {'short_url': 'A Short URL'}
     )
-    # @cache.cached(timeout=60)
+    @cache.cached(timeout=60)
     @jwt_required()
     def get(self, short_url):
         """
@@ -164,7 +149,7 @@ class UserLinkHistory(Resource):
     @shorturl_namespace.doc(
             description='Get All User Link History',
     )
-    # @cache.cached(timeout=60)
+    @cache.cached(timeout=60)
     @jwt_required()
     def get(self):
         """

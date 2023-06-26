@@ -1,12 +1,10 @@
-from flask_restx import Namespace, Resource, fields, marshal_with
+from flask_restx import Namespace, Resource, fields
 from flask import send_file
 from flask_jwt_extended import jwt_required, get_jwt_identity
-import matplotlib.pyplot as plt
-from io import BytesIO
 from ..models.user import User
 from ..models.analytics import Analytic
 from ..models.shorturl import Shorturl
-# from ..config.config import cache, limiter
+from ..config.config import cache
 from ..utils import db
 from datetime import datetime
 from http import HTTPStatus
@@ -30,7 +28,7 @@ class UrlAnalytics(Resource):
             description='Get URL Analytics',
             params = {'short_url': 'A Short URL'}
     )
-    # @cache.cached(timeout=60)
+    @cache.cached(timeout=60)
     @jwt_required()
     def get(self, short_url):
         """
@@ -48,7 +46,6 @@ class UrlAnalytics(Resource):
         if shorturl.user_id != current_user.id:
             return {'message': 'URL not found'}, HTTPStatus.NOT_FOUND
 
-        print(shorturl)
         analytics = Analytic.query.filter_by(id=shorturl.id).all()
 
         analytics_data = []

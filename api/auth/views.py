@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request, jsonify
 from ..models.user import User
-# from ..config.config import cache, limiter
+from ..config.config import cache, limiter
 from ..utils import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from http import HTTPStatus
@@ -39,9 +39,9 @@ login_model = auth_namespace.model(
 
 @auth_namespace.route('/signup')
 class SignUp(Resource):
-    # @limiter.limit("10 per minute")
+    @limiter.limit("10 per minute")
     @auth_namespace.expect(signup_model)
-    #@auth_namespace.marshal_with(user_model)
+    @auth_namespace.marshal_with(user_model)
     @auth_namespace.doc(
             description='Signup A User'
     )
@@ -75,13 +75,13 @@ class SignUp(Resource):
 
         new_user.save()
 
-        response_data = {
-            'id': new_user.id,
-            'firstname': new_user.firstname,
-            'lastname': new_user.lastname,
-            'email': new_user.email,
-            'password_hash': new_user.password_hash
-        }
+        # response_data = {
+        #     'id': new_user.id,
+        #     'firstname': new_user.firstname,
+        #     'lastname': new_user.lastname,
+        #     'email': new_user.email,
+        #     'password_hash': new_user.password_hash
+        # }
 
         #return json.dumps(response_data), 201, {'Content-Type': 'application/json'} #HTTPStatus.CREATED
         #return {new_user: 'new_user'}, HTTPStatus.CREATED
@@ -93,7 +93,7 @@ class Login(Resource):
     @auth_namespace.doc(
             description='Login A User'
     )
-    # @cache.cached(timeout=60)
+    @cache.cached(timeout=60)
     def post(self):
         """
            Generate JWT Token
